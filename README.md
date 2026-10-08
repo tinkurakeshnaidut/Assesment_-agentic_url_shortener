@@ -1,196 +1,30 @@
-Agentic Software Engineering System – URL Shortener
-Overview
-
-This project implements both parts of the assignment:
-
-A working URL Shortener
-An Agentic Software Engineering System that takes a software requirement in plain English and guides it through analysis, design, implementation planning, testing, security review, documentation, and release readiness.
-
-The system is designed around controlled autonomy: agents analyze and propose actions, while humans approve risky or important steps before changes are accepted.
-
-What I Built
-1. URL Shortener
-
-The application provides a functional URL shortening service.
-
-Features include:
-
-Convert a long URL into a short link
-URL validation
-Link expiration after a configurable number of days
-Maximum-use limits for generated links
-Usage tracking
-Rate limiting for link creation based on IP address
-Appropriate error handling for invalid or expired links
-
-For example, a link configured with a maximum of 2 uses will return HTTP 410 (Gone) when accessed for the third time.
-
-2. Agentic Software Engineering System
-
-The agentic system accepts a software requirement in plain English and processes it through a sequence of specialized tasks.
-
-The workflow covers:
-
-Requirement analysis
-Task decomposition
-Codebase analysis
-Design
-Implementation planning
-Testing
-Security review
-Documentation
-Release readiness
-Human approval gates
-
-The workflow is represented as a dependency graph, allowing independent tasks such as testing, security review, and documentation to run in parallel before converging at the release stage.
-
-How It Meets the Requirements
-Requirement Understanding
-
-The system analyzes natural-language requirements to identify:
-
-Requested features
-Constraints
-Assumptions
-Open questions
-Ambiguous requirements
-
-For example, vague requirements such as:
-
-"Make it faster, more secure, and scalable."
-
-are identified as ambiguous. Terms such as "faster", "secure", and "scalable" are converted into explicit questions, along with assumptions where necessary.
-
-Task Decomposition
-
-The system decomposes requirements into a dependency graph.
-
-Tasks can run independently when there are no dependencies between them. For example:
-
-Requirement
-    |
-    v
-Analysis
-    |
-    v
-Design
-    |
-    +------------+-------------+
-    |            |             |
-    v            v             v
- Testing   Security Review  Documentation
-    |            |             |
-    +------------+-------------+
-                 |
-                 v
-          Release Checklist
-
-
-This allows independent activities to be executed in parallel and joined before release.
-
-Codebase Reasoning
-
-For brownfield scenarios, the system analyzes the existing codebase rather than assuming the feature already exists.
-
-The agent identifies:
-
-What functionality already exists
-What functionality is missing
-Which files are relevant
-Which files would need to be changed
-Potential implementation considerations
-
-For example, when given:
-
-"Add custom alias support."
-
-the system determines that custom alias support is not currently available and identifies the relevant files that would need modification.
-
-Orchestration and Recovery
-
-The orchestration layer provides several controls:
-
-Entry and exit gates
-Human approval gates
-Up to 3 attempts per task
-Fallback handling
-Rollback handling
-Safe-stop behavior
-Dependency-aware execution
-Requirement-change propagation
-
-If a task fails repeatedly, the system attempts its fallback strategy and can eventually roll back and safely stop instead of continuing in an unsafe state.
-
-When a requirement changes, only the tasks that depend on the changed requirement are re-run.
-
-Guardrails
-
-Before outputs are accepted, the system performs basic safety and quality checks.
-
-The guardrails scan for patterns such as:
-
-Hard-coded passwords or secrets
-SQL queries constructed through unsafe string concatenation
-System.out usage
-
-These checks help prevent common implementation and security issues from being accepted into the workflow.
-
-Traceability and Metrics
-
-The system maintains an audit trail of the workflow.
-
-It records:
-
-Task execution
-Task retries
-Human approvals
-Task outcomes
-Rollbacks
-Recovery actions
-
-The system also tracks metrics such as:
-
-Success rate
-Number of retries
-Number of rollbacks
-Recovery time
-Total execution time
-
-This provides visibility into how the agentic workflow performed.
-
-Controlled Autonomy
-
-The system follows a human-in-the-loop approach.
-
-Agents can:
-
-Analyze requirements
-Propose designs
-Identify changes
-Generate recommendations
-Perform reviews
-
-However, agents do not automatically write changes into the codebase.
-
-Human approval is required for the appropriate steps, especially those involving potentially risky changes.
-
-Demonstration Scenarios
-
-The application includes three scenarios demonstrating different aspects of the system.
-
-1. Greenfield Scenario
-
-Goal: Build the URL shortener from scratch.
-
-The system processes the requirement through the complete workflow and eventually produces a GO decision on the release checklist.
-
-2. Brownfield Scenario
-
-Requirement:
-
-"Add custom alias support."
-
-The system analyzes the existing URL shortener implementation and determines:
-
-Custom aliases are currently missing
-What
+Agentic Software Engineering System - URL Shortener
+What I built
+
+The assignment has two parts, so I built both. First, a working URL shortener: paste a long URL and get a short link. Links can expire after some days or after a maximum number of uses. Every use is counted, bad URLs are rejected and link creation is rate limited per IP. Second, an agentic system: you type a requirement in plain English and a set of small agents carries it through analysis, design, code, tests, risk review, docs and a release checklist, while a human approves the risky steps.
+
+How it meets the requirements
+Requirement understanding: finds the features, flags vague words like "faster" or "secure" as open questions and writes down the assumptions it made.
+Task decomposition: the work is a dependency graph. Testing, security review and documentation run in parallel and join before release.
+Codebase reasoning: for existing code, an agent reads the real shortener source and reports what is already there, what is missing and which files must change.
+Orchestration: entry and exit gates, human approvals, up to 3 attempts per task, then a fallback, then rollback and a safe stop. Changing the requirement re-runs only the tasks that depend on it.
+Guardrails: every output is scanned for hard-coded passwords, SQL built by string joining and System.out before it is accepted.
+Traceability: an audit trail logs every step, retry and approval. Metrics show success rate, retries, rollbacks, recovery time and total time.
+Controlled autonomy: agents propose, humans approve. Nothing is written into the code automatically.
+The three scenarios
+Greenfield: build the shortener from scratch. It ends with a GO on the release checklist.
+Brownfield: "add custom alias support". The agent finds it missing and lists the files to change.
+Ambiguous: "make it faster, more secure, scalable". Each vague word becomes a question with an assumption.
+How to set it up
+
+You need JDK 17+, Maven and Node 18+.
+
+Backend (run it from the backend folder): cd backend, then mvn spring-boot:run.
+UI in a second terminal: cd ui, npm install, npm start.
+Open http://localhost:4200.
+Click a scenario, press Start run and approve when a task shows WAITING_APPROVAL.
+To test the shortener, use the "Try the shortener" box: set Max uses to 2 and open the link three times. The third one gives 410.
+Run the tests with mvn test in the backend folder.
+Limitations
+
+The agents are rule based, not AI model calls and code is build successfully and compiled. Runs and links are kept in memory and the API has no login. I chose these to keep the prototype simple and predictable.
